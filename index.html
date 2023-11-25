@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Solar</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      border: 1px solid #000;
+      background-color: #000;
+      margin: 0 auto;
+    }
+
+    #mensagem {
+      position: fixed;
+      top: 9%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.8);
+      color: #333;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    }
+  </style>
+  <script>
+    function drawSolarSystem() {
+      const canvas = document.getElementById("myCanvas");
+      const ctx = canvas.getContext("2d");
+
+      const sunRadius = 30;
+      const planet1Radius = 10;
+      const planet2Radius = 20;
+      const saturnRadius = 30;
+      const ringWidth = 5; // Largura dos anéis de Saturno
+      const ringDetail = 25; // Número de segmentos do anel de Saturno
+
+      let sunAngle = 0;
+      let planet1Angle = 0;
+      let planet2Angle = 0;
+      let saturnAngle = 0;
+      let pointAngle = 0; // Ângulo para o ponto girar no anel de Saturno
+
+      const rotationSpeedSun = 0.005;
+      const rotationSpeedPlanet1 = 0.02;
+      const rotationSpeedPlanet2 = 0.015;
+      const rotationSpeedSaturn = 0.01;
+      const rotationSpeedPoint = 0.03; // Velocidade de rotação do ponto
+
+      function drawStars() {
+        ctx.fillStyle = '#FFF';
+        for (let i = 0; i < 100; i++) {
+          const x = Math.random() * canvas.width;
+          const y = Math.random() * canvas.height;
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+
+      function drawSaturnRings(x, y) {
+        const numberOfRings = 4;
+        for (let i = 0; i < numberOfRings; i++) {
+          const radius = saturnRadius + (i + 1) * ringWidth * 2;
+          const ringDetailAngle = (2 * Math.PI) / ringDetail;
+
+          for (let j = 0; j < ringDetail; j++) {
+            const angle = j * ringDetailAngle;
+            const startX = x + radius * Math.cos(angle);
+            const startY = y + radius * Math.sin(angle);
+            const endX = x + (radius + ringWidth) * Math.cos(angle);
+            const endY = y + (radius + ringWidth) * Math.sin(angle);
+
+            const gradient = ctx.createRadialGradient(startX, startY, 0, startX, startY, ringWidth);
+            gradient.addColorStop(0, 'rgba(139, 69, 19, 0)'); // Transparente no centro
+            gradient.addColorStop(0.6, 'rgba(139, 69, 19, 0.5)'); // Cor mais escura na borda externa
+            gradient.addColorStop(1, 'rgba(139, 69, 19, 0)'); // Transparente na borda externa
+
+            ctx.beginPath();
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 1;
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+          }
+        }
+      }
+
+      function drawPointOnSaturnRing(x, y) {
+        const pointX = x + Math.cos(pointAngle) * (saturnRadius + ringWidth * 3);
+        const pointY = y + Math.sin(pointAngle) * (saturnRadius + ringWidth * 3);
+
+        ctx.beginPath();
+        ctx.arc(pointX, pointY, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = 'red';
+        ctx.fill();
+      }
+
+      function showMessage() {
+        const mensagem = document.getElementById('mensagem');
+        mensagem.style.display = 'block';
+
+        // Esconde a mensagem após 5 segundos
+        setTimeout(function () {
+          mensagem.style.display = 'none';
+        }, 6000);
+      }
+
+      function animate() {
+        // Limpa o canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Desenha as estrelas
+        drawStars();
+
+        // Desenha o sol
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height / 2, sunRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = 'yellow';
+        ctx.fill();
+
+        // Desenha o primeiro planeta
+        const planet1X = canvas.width / 2 + Math.cos(planet1Angle) * 100;
+        const planet1Y = canvas.height / 2 + Math.sin(planet1Angle) * 100;
+        ctx.beginPath();
+        ctx.arc(planet1X, planet1Y, planet1Radius, 0, 2 * Math.PI);
+        ctx.fillStyle = 'orange';
+        ctx.fill();
+
+        // Desenha o segundo planeta
+        const planet2X = canvas.width / 2 + Math.cos(planet2Angle) * 130;
+        const planet2Y = canvas.height / 2 + Math.sin(planet2Angle) * 130;
+        ctx.beginPath();
+        ctx.arc(planet2X, planet2Y, planet2Radius, 0, 2 * Math.PI);
+        ctx.fillStyle = 'lightblue';
+        ctx.fill();
+
+        // Desenha Saturno
+        const saturnX = canvas.width / 2 + Math.cos(saturnAngle) * 180;
+        const saturnY = canvas.height / 2 + Math.sin(saturnAngle) * 180;
+        ctx.beginPath();
+        ctx.arc(saturnX, saturnY, saturnRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = 'tan'; // Cor simulando a cor de Saturno
+        ctx.fill();
+
+        // Desenha os anéis de Saturno
+        drawSaturnRings(saturnX, saturnY);
+
+        // Desenha o ponto girando no anel de Saturno
+        // drawPointOnSaturnRing(saturnX, saturnY);
+
+        // Atualiza os ângulos para a próxima iteração
+        sunAngle += rotationSpeedSun;
+        planet1Angle += rotationSpeedPlanet1;
+        planet2Angle += rotationSpeedPlanet2;
+        saturnAngle += rotationSpeedSaturn;
+        pointAngle += rotationSpeedPoint;
+
+        // Chama a função para mostrar a mensagem quando atinge uma certa condição
+        if (Math.floor(pointAngle) % 360 === 0) {
+          showMessage();
+        }
+
+        // Agendando a próxima animação
+        requestAnimationFrame(animate);
+      }
+
+      // Inicia a animação
+      animate();
+    }
+  </script>
+</head>
+
+<body>
+  <canvas id="myCanvas" width="400" height="400"></canvas>
+
+  <!-- Mensagem de 8 meses de namoro -->
+  <div id="mensagem">
+    <p>8 meses juntos mo! 🎉💖</p>
+    <p>Eu te amo muito meu amor! VOCÊ É MEU UNIVERSO</p>
+  </div>
+
+  <script>
+    // Chamando a função principal para desenhar e animar o sistema solar
+    drawSolarSystem();
+  </script>
+</body>
+
+</html>
